@@ -7,8 +7,7 @@ The dataset is retrieved from Hong Kong Film Archive. It is a pdf file including
 
 ## Visualization
 The director-actor connections are visualized using d3 force simulation. Each node color represents if the person is a director/actor, or both. The top 20 directors/actors with the most connections are highlighted in red circles.
-![screenshot1]
-(./screenshots/1.png)
+![screenshot1](/screenshots/1.png)
 
 ## Features
 To help understanding the data further, the following features have been implemented:
