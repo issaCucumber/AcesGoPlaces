@@ -23,4 +23,7 @@ Performance is the main issue in rendering the graph. When there are thousands o
 
 How can we define a top working relationship? Does it count by the connections we have made, like what has done in this program. I have doubted it. Take an example of the awarded movies Wong Kar Wai and Tong Leung made in the 90's. The public would think that they are a good pair of working partners. However, the pair does not show as the top in the graph. It implies the quantitative definition of the connection's weight (by how many films the pair has made) is not sufficient. To move forward, more data such as award list, can be pulled in for the weight calculation.
 
+### Setup
+To run the visualization app, go to ./react-d3 and run "npm start".
+
 
