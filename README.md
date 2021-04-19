@@ -13,14 +13,11 @@ The director-actor connections are visualized using d3 force simulation. Each no
 ## Features
 To help understanding the data further, the following features have been implemented:
 1. Search: search for a director/actor with a chinese name and the search will be highlighted with green name
-![screenshot2]
-(./screenshots/2.png)
+![screenshot2](/screenshots/2.png)
 2. Find related connections by clicking on the name: click on the names and the directors/actors who are related will be highlighted with a blue name
-![screenshot3]
-(./screenshots/3.png)
+![screenshot3](/screenshots/3.png)
 3. Films that are worked by a director/actor pair: multi-select 2 names (by holding on the command key) and a list of films, if any, that were worked by the pair will be displayed
-![screenshot4]
-(./screenshots/4.png)
+![screenshot4](/screenshots/4.png)
 
 ## Conclusion & Future works
 Performance is the main issue in rendering the graph. When there are thousands of connections, it may take a while for the graph to finish rendering. I have tried using bubble chart to represent the connections. Compared to force graph, I found that force graph can better show the complexity of human network. 
