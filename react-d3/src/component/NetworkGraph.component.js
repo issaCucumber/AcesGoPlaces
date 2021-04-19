@@ -1,11 +1,60 @@
 import * as d3 from "d3";
 
 class NetworkGraph {
+    search(nodeId) {
+        this.names
+            .style("stroke-width", function(d) {
+                if(d.id == nodeId) {
+                    return "1";
+                } else {
+                    return "0.1";
+                }
+            })
+            .style("stroke", function(d) {
+                if(d.id == nodeId) {
+                    return "green";
+                } else {
+                    return "#000";
+                }
+            })
+    }
+
+    setCallback(callback) {
+        this.showConnection = callback;
+    }
+
+    _showConnection() {
+        var films = [];
+        this.dataset.links.forEach((link) => {
+            var valid = true;
+            this.selected.forEach((id) => {
+                if(id != link.source.id && id != link.target.id) {
+                    valid = false;
+                    return;
+                }
+            });
+
+            if(valid) {
+                films = films.concat(link.films);
+            }
+        });
+
+        this.showConnection(films);
+    }
+    
     drawChart(dataset) {
         var width = 1200;
         var height = 700;
 
-        var selected = null;
+        this.dataset = dataset;
+        this.nodes = null;
+        this.links = null;
+        this.names = null;
+
+        this.selected = new Set();
+        this.multiselect = false;
+
+        var that = this;
 
         //add zoom capabilities 
         var zoom = d3.zoom()
@@ -44,38 +93,74 @@ class NetworkGraph {
         };
 
         var _update = (peopleId) => {
-            selected = new Set();
+            if(this.multiselect) {
+                this.selected.add(parseInt(peopleId));
 
-            selected.add(parseInt(peopleId));
-            dataset.links.forEach((link) => {
-                if(link.source.id == peopleId) {
-                    selected.add(link.target.id);
-                    return;
-                }
-
-                if(link.target.id == peopleId) {
-                    selected.add(link.source.id);
-                    return;
-                }
-            });
-
-            names
+                this.names
                 .style("stroke-width", function(d) {
-                    if(selected.has(d.id)) {
+                    if(that.selected.has(d.id)) {
                         return "1";
                     } else {
                         return "0.1";
                     }
                 })
                 .style("stroke", function(d) {
-                    if(selected.has(d.id)) {
+                    if(that.selected.has(d.id)) {
+                        return "DeepPink";
+                    } else {
+                        return "#000";
+                    }
+                });
+
+                if(this.selected.size == 2){
+                    this._showConnection();
+                }
+                return;
+            }
+
+            this.selected = new Set();
+            this.selected.add(parseInt(peopleId));
+            dataset.links.forEach((link) => {
+                if(link.source.id == peopleId) {
+                    this.selected.add(link.target.id);
+                    return;
+                }
+
+                if(link.target.id == peopleId) {
+                    this.selected.add(link.source.id);
+                    return;
+                }
+            });
+
+            this.names
+                .style("stroke-width", function(d) {
+                    if(that.selected.has(d.id)) {
+                        return "1";
+                    } else {
+                        return "0.1";
+                    }
+                })
+                .style("stroke", function(d) {
+                    if(that.selected.has(d.id)) {
                         return "blue";
                     } else {
                         return "#000";
                     }
-                })
+                });
 
         }
+
+        d3.select("body")
+            .on("keydown", function(e) {
+                if(e.keyCode == 91 || e.keyCode == 93) {
+                    that.multiselect = true;
+                    that.selected = new Set();
+                }
+            })
+            .on("keyup", function(e) {
+                that.multiselect = false;
+                that.selected = new Set();
+            });
 
         d3.select("#graph").select("svg").remove();
 
@@ -100,22 +185,22 @@ class NetworkGraph {
             }));
 
         simulation.on("tick", () => {
-            links
+            that.links
                 .attr("x1", d => d.source.x)
                 .attr("y1", d => d.source.y)
                 .attr("x2", d => d.target.x)
                 .attr("y2", d => d.target.y);
         
-            nodes
+            that.nodes
                 .attr("cx", function(d) { return d.x; })
                 .attr("cy", function(d) { return d.y; });
 
-            names
+            that.names
                 .attr("x", function(d) { return d.x; })
                 .attr("y", function(d) { return d.y; });
         });
 
-        var links = g.append("g")
+        this.links = g.append("g")
                     .attr("class", "links")
                     .attr("stroke", "#999")
                     .selectAll("line")
@@ -123,7 +208,7 @@ class NetworkGraph {
                     .join("line")
                     .attr("stroke-width", d => Math.sqrt(d.weight));
 
-        var nodes = g.append("g")
+        this.nodes = g.append("g")
                     .attr("class", "nodes") 
                     .attr("stroke", "#fff")
                     .selectAll("circle")
@@ -135,11 +220,11 @@ class NetworkGraph {
                     })
                     .style("fill", function(d) {
                         if(d.group == "actor") {
-                            return "#6b486b";
+                            return "#00FF7F";
                         } else if (d.group == "director") {
-                            return "#a05d56";
+                            return "#8B008B";
                         } else {
-                            return "#d0743c";
+                            return "#4682B4";
                         }
                     })
                     .style("stroke", function(d) {
@@ -158,7 +243,7 @@ class NetworkGraph {
                     })
                     .call(_drag(simulation));
 
-        var names = g.append("g")
+        this.names = g.append("g")
                     .attr("class", "names") 
                     .selectAll("text")
                     .data(dataset.nodes)

@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import { Container, Row, Col, ListGroup } from 'react-bootstrap';
+import { Container, Row, Col, ListGroup, Form, Button, Alert } from 'react-bootstrap';
 // import BubbleChart from './component/BubbleChart.component';
 import NetworkGraph from './component/NetworkGraph.component';
+import Films from './component/Films.component';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -11,7 +12,22 @@ import { rawdata } from './raw.js';
 class App extends Component {
   _selectYear = (e) => {
     this.selectedYear = parseInt(e.target.id);
+    this.setState({films: []});
     this._refreshChart();
+  }
+
+  _setSearchText = (e) => {
+    this.setState({search_text: e.target.value});
+  }
+
+  _searchPeople = () => {
+    var peopleMap = this.peopleMaps[this.selectedYear];
+    if(peopleMap.has(this.state.search_text)) {
+      this.chart.search(peopleMap.get(this.state.search_text));
+      this.setState({alert: "hidden"});
+    } else {
+      this.setState({alert: ""});
+    }
   }
 
   _refreshChart = () => {
@@ -39,10 +55,6 @@ class App extends Component {
         result.sort((a, b) => {
           return b[1].length - a[1].length;
         });
-
-        if(year == 1950) {
-          console.log(result.slice(0, 20));
-        }
 
         let top = 0;
         let top_limit = 10;
@@ -90,6 +102,7 @@ class App extends Component {
         
         this.data[year].count = count;
         this.data[year].stats = {nodes: people, links: connections};
+        this.peopleMaps[year] = peopleMap;
     }
 
     this._refreshChart();
@@ -98,10 +111,15 @@ class App extends Component {
   constructor(props){
     super(props);
     // this.bubblechart = new BubbleChart();
+    var that = this;
     this.chart = new NetworkGraph();
+    this.chart.setCallback((films) => {
+      that.setState({films: films});
+    });
     this.data = {};
+    this.peopleMaps = {};
     this.selectedYear = 1910;
-    this.state = {count: 0};
+    this.state = {count: 0, search_text: "", alert: "hidden", films: []};
   }
 
   componentDidMount() {
@@ -120,17 +138,48 @@ class App extends Component {
               <Col sm={9}>
                 <div id="graph"></div>
               </Col>
-              <Col sm={3}>
-                <ListGroup defaultActiveKey="#1910">
-                  {
-                    yearSelection.map((year) => {
-                      return <ListGroup.Item href={"#"+year} id={year} action onClick={this._selectYear}>
-                      {year}'s
-                    </ListGroup.Item>;
-                    })
-                  }
-                </ListGroup>
-                <span>Total connections: {this.state.count}</span>
+              <Col sm={1}>
+                <Row>
+                  <ListGroup defaultActiveKey="#1910">
+                    {
+                      yearSelection.map((year) => {
+                        return <ListGroup.Item href={"#"+year} id={year} action onClick={this._selectYear}>
+                        {year}'s
+                      </ListGroup.Item>;
+                      })
+                    }
+                  </ListGroup>
+                </Row>
+              </Col>
+              <Col>
+                <p>Total connections: {this.state.count}</p>
+                <Row>
+                  <Col sm={4}><div className="director"></div></Col>
+                  <Col sm={5}>導演</Col>
+                </Row>
+                <Row>
+                  <Col sm={4}><div className="actor"></div></Col>
+                  <Col sm={5}>演員</Col>
+                </Row>
+                <Row>
+                  <Col sm={4}><div className="both"></div></Col>
+                  <Col sm={5}>導演+演員</Col>
+                </Row>
+                <br/>
+                <Form>
+                  <Form.Label>Search 導演/演員</Form.Label>
+                  <Form.Control type="text" value={this.state.search_text} onChange={this._setSearchText}/>
+                  <br/>
+                  <Button variant="primary" onClick={this._searchPeople}>
+                    Search
+                  </Button>
+                </Form>
+                <br/>
+                <Alert variant='danger' hidden={this.state.alert}>
+                  No search found!
+                </Alert>
+                <br/>
+                <Films films={this.state.films} />
               </Col>
           </Row>
       </Container>

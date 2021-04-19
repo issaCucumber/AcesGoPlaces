@@ -15,7 +15,27 @@
   text-align: center;
 }
 
-text, line {
+.director {
+  background-color: #8B008B;
+  height: 10px;
+}
+
+.actor {
+  background-color: #00FF7F;
+  height: 10px;
+}
+
+.both {
+  background-color: #4682B4;
+  height: 10px;
+}
+
+.films {
+  overflow-y: scroll;
+  height: 400px;
+}
+
+text {
   cursor:pointer;
 }
 
