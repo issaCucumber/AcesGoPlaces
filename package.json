@@ -1,0 +1,15 @@
+{
+  "name": "acesgoplaces",
+  "version": "1.0.0",
+  "description": "To find out the long coorperating partners in HK film history",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pdfreader": "^1.2.8",
+    "write": "^2.0.0"
+  }
+}
